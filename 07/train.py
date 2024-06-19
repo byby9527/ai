@@ -10,7 +10,8 @@ module = __import__(sys.argv[1])
 Net = module.Net
 
 n_epochs = 3
-batch_size_train = 64
+### 訓練和測試的批次大小 
+batch_size_train = 64 
 batch_size_test = 1000
 learning_rate = 0.01
 momentum = 0.5
@@ -19,7 +20,7 @@ log_interval = 10
 random_seed = 1
 torch.backends.cudnn.enabled = False
 torch.manual_seed(random_seed)
-
+###  創建訓練數據加載器
 train_loader = torch.utils.data.DataLoader(
   torchvision.datasets.MNIST('files/', train=True, download=True,
                              transform=torchvision.transforms.Compose([
@@ -28,6 +29,7 @@ train_loader = torch.utils.data.DataLoader(
                                  (0.1307,), (0.3081,))
                              ])),
   batch_size=batch_size_train, shuffle=True)
+
 
 test_loader = torch.utils.data.DataLoader(
   torchvision.datasets.MNIST('files/', train=False, download=True,
@@ -66,7 +68,7 @@ train_losses = []
 train_counter = []
 test_losses = []
 test_counter = [i*len(train_loader.dataset) for i in range(n_epochs + 1)]
-
+### 定義訓練函數 (train)，進行模型訓練，計算損失並更新模型參數
 def train(epoch):
   network.train()
   for batch_idx, (data, target) in enumerate(train_loader):
@@ -108,12 +110,13 @@ def test():
   print('\nTest set: Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
     test_loss, correct, len(test_loader.dataset),
     100. * correct / len(test_loader.dataset)))
-
+###  開始訓練和測試模型，分別呼叫 train 和 test 函數
 test()
 for epoch in range(1, n_epochs + 1):
   train(epoch)
   test()
 
+### 繪製訓練過程中的損失曲線
 fig = plt.figure()
 plt.plot(train_counter, train_losses, color='blue')
 plt.scatter(test_counter, test_losses, color='red')
